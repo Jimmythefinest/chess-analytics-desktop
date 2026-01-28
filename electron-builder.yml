@@ -1,0 +1,36 @@
+appId: com.jimmy.chess-analytics
+productName: Chess Analytics
+directories:
+  output: dist_electron
+  buildResources: build
+files:
+  - from: .
+    filter:
+      - package.json
+  - from: electron
+    to: electron
+  - from: frontend/dist
+    to: frontend/dist
+  - from: backend/dist
+    to: backend/dist
+extraResources:
+  - from: backend/data
+    to: backend/data
+    filter:
+      - "**/*"
+  - from: backend/bin
+    to: backend/bin
+    filter:
+      - "**/*"
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+linux:
+  target:
+    - target: AppImage
+mac:
+  target:
+    - target: dmg
+  category: public.app-category.games

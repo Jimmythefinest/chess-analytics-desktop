@@ -1,0 +1,112 @@
+.import-page .page-header {
+    margin-bottom: var(--space-xl);
+}
+
+.import-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-xl);
+    margin-bottom: var(--space-xl);
+}
+
+.import-card {
+    padding: var(--space-xl);
+}
+
+.import-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+    padding-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--bg-tertiary);
+}
+
+.logo-icon {
+    font-size: 2.5rem;
+}
+
+.logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.import-logo.chesscom .logo-icon {
+    color: #81b64c;
+}
+
+.import-logo.chesscom .logo-text {
+    color: #81b64c;
+}
+
+.import-logo.lichess .logo-icon {
+    color: var(--text-primary);
+}
+
+.import-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.input-label {
+    display: block;
+    margin-bottom: var(--space-xs);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.import-btn {
+    margin-top: var(--space-md);
+    width: 100%;
+}
+
+.import-success {
+    padding: var(--space-md);
+    background: rgba(63, 185, 80, 0.1);
+    border: 1px solid rgba(63, 185, 80, 0.3);
+    border-radius: var(--radius-md);
+    color: var(--accent-success);
+    text-align: center;
+}
+
+.import-error {
+    padding: var(--space-md);
+    background: rgba(248, 81, 73, 0.1);
+    border: 1px solid rgba(248, 81, 73, 0.3);
+    border-radius: var(--radius-md);
+    color: var(--accent-danger);
+    text-align: center;
+}
+
+.instructions {
+    max-width: 600px;
+}
+
+.instructions h3 {
+    margin-bottom: var(--space-md);
+}
+
+.instructions ol {
+    margin-left: var(--space-lg);
+    margin-bottom: var(--space-md);
+}
+
+.instructions li {
+    margin-bottom: var(--space-sm);
+    color: var(--text-secondary);
+}
+
+.instructions .note {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    padding: var(--space-md);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+}
+
+@media (max-width: 768px) {
+    .import-grid {
+        grid-template-columns: 1fr;
+    }
+}

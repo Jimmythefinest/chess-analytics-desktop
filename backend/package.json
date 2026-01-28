@@ -1,0 +1,36 @@
+{
+  "name": "chess-analytics-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Chess analytics engine backend - blunder detection and game analysis",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --external:better-sqlite3 --external:stockfish --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\" && echo {\"type\": \"module\"} > dist/package.json",
+    "start": "node dist/index.js",
+    "test": "vitest",
+    "db:clean": "rm -f data/chess.db data/chess.db-wal data/chess.db-shm"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "chess.js": "^1.0.0-beta.8",
+    "bull": "^4.12.2",
+    "ioredis": "^5.3.2",
+    "stockfish": "^16.0.0",
+    "axios": "^1.6.7",
+    "zod": "^3.22.4",
+    "dotenv": "^16.4.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/cors": "^2.8.17",
+    "@types/better-sqlite3": "^7.6.9",
+    "@types/node": "^20.11.16",
+    "typescript": "^5.3.3",
+    "tsx": "^4.7.0",
+    "vitest": "^1.2.2",
+    "esbuild": "^0.20.0",
+    "better-sqlite3": "^9.4.3"
+  }
+}

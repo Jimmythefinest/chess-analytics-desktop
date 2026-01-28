@@ -1,0 +1,81 @@
+.openings-page .page-header {
+    margin-bottom: var(--space-xl);
+}
+
+.chart-container {
+    margin-top: var(--space-md);
+}
+
+.openings-table-container {
+    overflow-x: auto;
+}
+
+.openings-table {
+    min-width: 700px;
+}
+
+.eco-badge {
+    display: inline-block;
+    padding: var(--space-xs) var(--space-sm);
+    background: var(--accent-purple);
+    color: white;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.opening-name-cell {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wdl {
+    font-weight: 500;
+}
+
+.win-rate-bar {
+    position: relative;
+    width: 100px;
+    height: 20px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.win-rate-fill {
+    height: 100%;
+    transition: width var(--transition-normal);
+}
+
+.win-rate-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--space-2xl);
+    max-width: 400px;
+    margin: var(--space-2xl) auto;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: var(--space-md);
+    opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+    .win-rate-bar {
+        width: 80px;
+    }
+}

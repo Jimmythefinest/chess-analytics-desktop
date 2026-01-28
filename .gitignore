@@ -1,0 +1,11 @@
+# Node dependencies (anywhere)
+node_modules/
+
+# Build outputs
+dist/
+dist_electron/
+frontend/dist/
+
+# Backend generated data
+backend/bin/
+backend/data/

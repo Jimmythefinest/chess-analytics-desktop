@@ -1,0 +1,150 @@
+.game-list-page .page-header {
+    margin-bottom: var(--space-xl);
+}
+
+.filters {
+    display: flex;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.filter-select {
+    max-width: 200px;
+}
+
+.games-table-container {
+    background: var(--bg-card);
+    border: 1px solid var(--bg-tertiary);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.games-table {
+    margin: 0;
+}
+
+.games-table th {
+    background: var(--bg-secondary);
+}
+
+.players-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.players-cell .you {
+    font-weight: 600;
+    color: var(--accent-primary);
+}
+
+.players-cell .vs {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+.opening-eco {
+    font-weight: 600;
+    color: var(--accent-purple);
+    margin-right: var(--space-sm);
+}
+
+.opening-name {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.result-badge {
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.result-badge.win {
+    background: rgba(63, 185, 80, 0.2);
+    color: var(--accent-success);
+}
+
+.result-badge.loss {
+    background: rgba(248, 81, 73, 0.2);
+    color: var(--accent-danger);
+}
+
+.result-badge.draw {
+    background: rgba(139, 148, 158, 0.2);
+    color: var(--text-secondary);
+}
+
+.source-badge {
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.source-badge.chesscom {
+    background: rgba(129, 182, 76, 0.2);
+    color: #81b64c;
+}
+
+.source-badge.lichess {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.action-buttons {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.analyzed-badge {
+    color: var(--accent-success);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-lg);
+    margin-top: var(--space-xl);
+}
+
+.page-info {
+    color: var(--text-secondary);
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--space-2xl);
+    max-width: 400px;
+    margin: var(--space-2xl) auto;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: var(--space-md);
+    opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+    .filters {
+        flex-direction: column;
+    }
+
+    .filter-select {
+        max-width: 100%;
+    }
+
+    .games-table-container {
+        overflow-x: auto;
+    }
+
+    .games-table {
+        min-width: 700px;
+    }
+}
