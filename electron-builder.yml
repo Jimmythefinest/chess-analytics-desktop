@@ -1,5 +1,6 @@
 appId: com.jimmy.chess-analytics
 productName: Chess Analytics
+
 directories:
   output: dist_electron
   buildResources: build

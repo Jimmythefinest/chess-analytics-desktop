@@ -31,6 +31,6 @@
     "tsx": "^4.7.0",
     "vitest": "^1.2.2",
     "esbuild": "^0.20.0",
-    "better-sqlite3": "^9.4.3"
+    "better-sqlite3": "^12.6.2"
   }
 }
