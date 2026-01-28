@@ -1,6 +1,7 @@
 {
   "name": "chess-analytics",
   "version": "1.0.0",
+  "type": "module",
   "main": "electron/main.mjs",
   "scripts": {
     "electron:dev": "concurrently \"npm run dev --prefix frontend\" \"wait-on http://localhost:5173 && electron .\"",

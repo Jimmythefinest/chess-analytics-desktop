@@ -1,5 +1,9 @@
 appId: com.jimmy.chess-analytics
 productName: Chess Analytics
+npmRebuild: true
+asar: true
+asarUnpack:
+  - "**/node_modules/better-sqlite3/**/*"
 
 directories:
   output: dist_electron

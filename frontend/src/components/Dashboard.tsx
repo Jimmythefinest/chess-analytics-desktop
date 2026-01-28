@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
     LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
@@ -62,7 +63,7 @@ export function Dashboard() {
                     <div className="empty-icon">♟</div>
                     <h3>No Games Yet</h3>
                     <p className="text-secondary">Import your games from Chess.com or Lichess to get started</p>
-                    <a href="/import" className="btn btn-primary mt-md">Import Games</a>
+                    <Link to="/import" className="btn btn-primary mt-md">Import Games</Link>
                 </div>
             ) : (
                 <>
