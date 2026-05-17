@@ -23,6 +23,7 @@ contextBridge.exposeInMainWorld('electron', {
 
         // Explorer
         getExplorerPosition: (fen) => ipcRenderer.invoke('explorer:position', fen),
+        evaluateExplorerPosition: (fen, depth) => ipcRenderer.invoke('explorer:evaluatePosition', fen, depth),
 
         // Window
         minimizeWindow: () => ipcRenderer.invoke('window:minimize'),

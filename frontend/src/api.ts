@@ -37,5 +37,7 @@ export const api = {
     explorer: {
         getPosition: (fen?: string) =>
             isElectron ? (window as any).electron.api.getExplorerPosition(fen) : Promise.reject('IPC not available'),
+        evaluatePosition: (fen: string, depth: number) =>
+            isElectron ? (window as any).electron.api.evaluateExplorerPosition(fen, depth) : Promise.reject('IPC not available'),
     }
 };

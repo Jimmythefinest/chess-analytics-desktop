@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Chess } from 'chess.js';
 import 'chessboard-element';
 import { api } from '../api';
 import './Explorer.css';
@@ -37,14 +38,48 @@ interface ExplorerPosition {
     nextMoves: ExplorerMove[];
 }
 
+interface EngineEval {
+    type: 'cp' | 'mate';
+    value: number;
+    bestMove: string;
+    pv: string[];
+    depth: number;
+    fen: string;
+}
+
 interface HistoryEntry {
     fen: string;
     label: string;
 }
 
+function evalToPercent(evalData?: EngineEval | null) {
+    if (!evalData) return 50;
+    if (evalData.type === 'mate') {
+        return evalData.value > 0 ? 98 : 2;
+    }
+
+    const clamped = Math.max(-600, Math.min(600, evalData.value));
+    return Math.round(50 + (clamped / 12));
+}
+
+function formatEval(evalData?: EngineEval | null) {
+    if (!evalData) return '...';
+    if (evalData.type === 'mate') {
+        return `M${Math.abs(evalData.value)}`;
+    }
+
+    const pawns = evalData.value / 100;
+    return `${pawns >= 0 ? '+' : ''}${pawns.toFixed(2)}`;
+}
+
 export function Explorer() {
+    const boardRef = useRef<HTMLElement | null>(null);
+    const lastDropAtRef = useRef(0);
     const [fen, setFen] = useState('start');
     const [history, setHistory] = useState<HistoryEntry[]>([{ fen: 'start', label: 'Start' }]);
+    const [engineEval, setEngineEval] = useState<EngineEval | null>(null);
+    const [engineError, setEngineError] = useState('');
+    const [selectedSquare, setSelectedSquare] = useState('');
 
     const { data, isLoading, isError } = useQuery<ExplorerPosition>({
         queryKey: ['explorer', fen],
@@ -54,12 +89,14 @@ export function Explorer() {
     const goToMove = (move: ExplorerMove) => {
         setFen(move.fenAfter);
         setHistory(items => [...items, { fen: move.fenAfter, label: move.san }]);
+        setSelectedSquare('');
     };
 
     const jumpTo = (index: number) => {
         const nextHistory = history.slice(0, index + 1);
         setHistory(nextHistory);
         setFen(nextHistory[nextHistory.length - 1].fen);
+        setSelectedSquare('');
     };
 
     const goBack = () => {
@@ -70,10 +107,148 @@ export function Explorer() {
     const reset = () => {
         setFen('start');
         setHistory([{ fen: 'start', label: 'Start' }]);
+        setSelectedSquare('');
     };
 
     const currentPly = Math.max(0, history.length - 1);
     const sideToMove = data?.sideToMove === 'black' ? 'Black' : 'White';
+    const boardFen = data?.fen || fen;
+    const whitePercent = evalToPercent(engineEval);
+    const barFillPercent = 100 - whitePercent;
+
+    const pushMove = (nextFen: string, label: string) => {
+        setFen(nextFen);
+        setHistory(items => [...items, { fen: nextFen, label }]);
+        setSelectedSquare('');
+    };
+
+    const getSquareFromEvent = (event: Event) => {
+        const path = event.composedPath();
+        for (const item of path) {
+            if (item instanceof HTMLElement) {
+                const square = item.getAttribute('data-square');
+                if (square) return square;
+            }
+        }
+        return '';
+    };
+
+    const isOwnPiece = (square: string) => {
+        try {
+            const chess = new Chess(boardFen === 'start' ? undefined : boardFen);
+            const piece = chess.get(square as any);
+            return !!piece && piece.color === chess.turn();
+        } catch {
+            return false;
+        }
+    };
+
+    const tryMove = (from: string, to: string) => {
+        try {
+            const chess = new Chess(boardFen === 'start' ? undefined : boardFen);
+            const move = chess.move({ from, to, promotion: 'q' });
+            if (!move) return false;
+            pushMove(chess.fen(), move.san);
+            return true;
+        } catch {
+            return false;
+        }
+    };
+
+    useEffect(() => {
+        let active = true;
+        let depth = 6;
+
+        setEngineEval(null);
+        setEngineError('');
+
+        const evaluate = async () => {
+            while (active) {
+                try {
+                    const result = await api.explorer.evaluatePosition(boardFen, depth) as EngineEval;
+                    if (!active || result.fen !== boardFen) return;
+                    setEngineEval(result);
+                    setEngineError('');
+                    depth += 2;
+                } catch (error: any) {
+                    if (!active) return;
+                    setEngineError(error?.message || 'Engine unavailable');
+                    return;
+                }
+            }
+        };
+
+        evaluate();
+
+        return () => {
+            active = false;
+        };
+    }, [boardFen]);
+
+    useEffect(() => {
+        const board = boardRef.current;
+        if (!board) return;
+
+        const handleDrop = (event: Event) => {
+            lastDropAtRef.current = Date.now();
+            const dropEvent = event as CustomEvent<{
+                source: string;
+                target: string;
+                setAction: (action: 'snapback' | 'trash' | 'drop') => void;
+            }>;
+            const { source, target, setAction } = dropEvent.detail;
+            if (!source || !target || target === 'offboard') {
+                setAction('snapback');
+                return;
+            }
+
+            try {
+                const chess = new Chess(boardFen === 'start' ? undefined : boardFen);
+                const move = chess.move({ from: source, to: target, promotion: 'q' });
+
+                if (!move) {
+                    setAction('snapback');
+                    return;
+                }
+
+                pushMove(chess.fen(), move.san);
+            } catch {
+                setAction('snapback');
+            }
+        };
+
+        board.addEventListener('drop', handleDrop);
+        return () => board.removeEventListener('drop', handleDrop);
+    }, [boardFen]);
+
+    useEffect(() => {
+        const board = boardRef.current;
+        if (!board) return;
+
+        const handleTap = (event: Event) => {
+            if (Date.now() - lastDropAtRef.current < 150) return;
+
+            const square = getSquareFromEvent(event);
+            if (!square) return;
+
+            if (!selectedSquare) {
+                setSelectedSquare(isOwnPiece(square) ? square : '');
+                return;
+            }
+
+            if (selectedSquare === square) {
+                setSelectedSquare('');
+                return;
+            }
+
+            if (tryMove(selectedSquare, square)) return;
+
+            setSelectedSquare(isOwnPiece(square) ? square : '');
+        };
+
+        board.addEventListener('click', handleTap);
+        return () => board.removeEventListener('click', handleTap);
+    }, [boardFen, selectedSquare]);
 
     return (
         <div className="explorer-page animate-fade-in">
@@ -90,12 +265,24 @@ export function Explorer() {
 
             <div className="explorer-layout">
                 <section className="explorer-board-panel">
-                    <div className="explorer-board-wrap">
-                        <chess-board
-                            key={data?.fen || fen}
-                            position={data?.fen || fen}
-                            draggable="false"
-                        ></chess-board>
+                    <div className="explorer-board-stage">
+                        <div className="eval-bar" aria-label={`Engine evaluation ${formatEval(engineEval)}`}>
+                            <span className="eval-label top">{formatEval(engineEval)}</span>
+                            <span className="eval-fill" style={{ height: `${barFillPercent}%` }} />
+                            <span className="eval-label bottom">{engineEval ? `d${engineEval.depth}` : engineError || 'SF'}</span>
+                        </div>
+                        <div className="explorer-board-wrap">
+                            {selectedSquare && (
+                                <style>{`chess-board::part(${selectedSquare}) { box-shadow: inset 0 0 0 4px rgba(88, 166, 255, 0.85); }`}</style>
+                            )}
+                            <chess-board
+                                ref={boardRef}
+                                key={boardFen}
+                                position={boardFen}
+                                draggable-pieces="true"
+                                drop-off-board="snapback"
+                            ></chess-board>
+                        </div>
                     </div>
 
                     <div className="explorer-position-strip">

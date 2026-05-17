@@ -76,6 +76,29 @@ export async function initDatabase(): Promise<void> {
       UNIQUE(game_id, ply)
     );
 
+    -- Aggregated move tree for the explorer. One row represents one legal next move
+    -- from a normalized position, accumulated across analyzed games.
+    CREATE TABLE IF NOT EXISTS explorer_moves (
+      position_key TEXT NOT NULL,
+      san TEXT NOT NULL,
+      uci TEXT NOT NULL,
+      from_square TEXT NOT NULL,
+      to_square TEXT NOT NULL,
+      promotion TEXT,
+      fen_after TEXT NOT NULL,
+      games INTEGER DEFAULT 0,
+      wins INTEGER DEFAULT 0,
+      draws INTEGER DEFAULT 0,
+      losses INTEGER DEFAULT 0,
+      PRIMARY KEY (position_key, uci)
+    );
+
+    -- Tracks which analyzed games have already been folded into explorer_moves.
+    CREATE TABLE IF NOT EXISTS explorer_indexed_games (
+      game_id TEXT PRIMARY KEY REFERENCES games(id) ON DELETE CASCADE,
+      indexed_at TEXT DEFAULT (datetime('now'))
+    );
+
     -- Insights cache
     CREATE TABLE IF NOT EXISTS insights_cache (
       key TEXT PRIMARY KEY,
@@ -89,6 +112,7 @@ export async function initDatabase(): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_games_analyzed ON games(analyzed);
     CREATE INDEX IF NOT EXISTS idx_analysis_game ON analysis(game_id);
     CREATE INDEX IF NOT EXISTS idx_analysis_classification ON analysis(classification);
+    CREATE INDEX IF NOT EXISTS idx_explorer_moves_position ON explorer_moves(position_key);
   `);
 
   console.log('✅ Database initialized at', DB_PATH);

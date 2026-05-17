@@ -3,7 +3,7 @@ import { Chess } from 'chess.js';
 import * as chesscom from './services/chesscom.js';
 import * as lichess from './services/lichess.js';
 import { parsePgn, extractOpeningInfo, classifyMove, generateSummary } from './services/analyzer.js';
-import { analyzeGame } from './services/stockfish.js';
+import { analyzeGame, evaluatePosition } from './services/stockfish.js';
 import type { Game, MoveAnalysis, InsightsOverview, OpeningStats } from './types.js';
 
 /**
@@ -141,7 +141,10 @@ export async function triggerAnalysis(id: string, depth: number = 12) {
     if (!game) throw new Error('Game not found');
 
     const existingAnalysis = db.prepare('SELECT COUNT(*) as count FROM analysis WHERE game_id = ?').get(id) as { count: number };
-    if (existingAnalysis.count > 0) return { success: true, message: 'Game already analyzed', alreadyAnalyzed: true };
+    if (existingAnalysis.count > 0) {
+        indexGameInExplorer(game);
+        return { success: true, message: 'Game already analyzed', alreadyAnalyzed: true };
+    }
 
     const analysisResults = await analyzeGame(game.pgn, game.user_color as 'white' | 'black', depth);
     const insertStmt = db.prepare(`
@@ -175,6 +178,7 @@ export async function triggerAnalysis(id: string, depth: number = 12) {
     }
 
     db.prepare('UPDATE games SET analyzed = 1 WHERE id = ?').run(id);
+    indexGameInExplorer(game);
     const summary = generateSummary(moves);
     return { success: true, summary, movesAnalyzed: moves.length };
 }
@@ -409,98 +413,143 @@ function isUserLoss(game: Game): boolean {
         (game.user_color === 'black' && game.result === '1-0');
 }
 
+function getExplorerResultDeltas(game: Game) {
+    return {
+        wins: isUserWin(game) ? 1 : 0,
+        draws: game.result === '1/2-1/2' ? 1 : 0,
+        losses: isUserLoss(game) ? 1 : 0,
+    };
+}
+
+function indexGameInExplorer(game: Game) {
+    const db = getDb();
+    const alreadyIndexed = db.prepare('SELECT 1 FROM explorer_indexed_games WHERE game_id = ?').get(game.id);
+    if (alreadyIndexed) {
+        return false;
+    }
+
+    const analysis = db.prepare(`
+        SELECT fen, move_played
+        FROM analysis
+        WHERE game_id = ?
+        ORDER BY ply ASC
+    `).all(game.id) as Array<Pick<MoveAnalysis, 'fen' | 'move_played'>>;
+
+    const result = getExplorerResultDeltas(game);
+    const upsertMove = db.prepare(`
+        INSERT INTO explorer_moves
+            (position_key, san, uci, from_square, to_square, promotion, fen_after, games, wins, draws, losses)
+        VALUES
+            (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
+        ON CONFLICT(position_key, uci) DO UPDATE SET
+            san = excluded.san,
+            fen_after = excluded.fen_after,
+            games = games + 1,
+            wins = wins + excluded.wins,
+            draws = draws + excluded.draws,
+            losses = losses + excluded.losses
+    `);
+
+    const markIndexed = db.prepare('INSERT INTO explorer_indexed_games (game_id) VALUES (?)');
+
+    const indexTransaction = db.transaction(() => {
+        for (const row of analysis) {
+            try {
+                const chess = new Chess(row.fen);
+                const move = chess.move(row.move_played) as any;
+                if (!move) continue;
+
+                const uci = `${move.from}${move.to}${move.promotion || ''}`;
+                upsertMove.run(
+                    normalizeFen(row.fen),
+                    move.san,
+                    uci,
+                    move.from,
+                    move.to,
+                    move.promotion || null,
+                    chess.fen(),
+                    result.wins,
+                    result.draws,
+                    result.losses
+                );
+            } catch {
+                continue;
+            }
+        }
+
+        markIndexed.run(game.id);
+    });
+
+    indexTransaction();
+    return true;
+}
+
+function ensureExplorerIndex() {
+    const db = getDb();
+    const games = db.prepare(`
+        SELECT g.*
+        FROM games g
+        LEFT JOIN explorer_indexed_games eig ON eig.game_id = g.id
+        WHERE g.analyzed = 1 AND eig.game_id IS NULL
+        ORDER BY g.played_at DESC, g.id ASC
+    `).all() as Game[];
+
+    for (const game of games) {
+        indexGameInExplorer(game);
+    }
+}
+
 export async function getExplorerPosition(fen: string = 'start') {
+    ensureExplorerIndex();
+
     const db = getDb();
     const targetFen = displayFen(fen);
     const targetKey = normalizeFen(targetFen);
     const targetPosition = new Chess(targetFen);
-    const games = db.prepare(`
-        SELECT id, pgn, result, user_color
-        FROM games
-        WHERE pgn != '' AND pgn IS NOT NULL
-    `).all() as Array<Pick<Game, 'id' | 'pgn' | 'result' | 'user_color'>>;
-
-    const moves = new Map<string, {
+    const rows = db.prepare(`
+        SELECT
+            san,
+            uci,
+            from_square,
+            to_square,
+            promotion,
+            fen_after as fenAfter,
+            games,
+            wins,
+            draws,
+            losses
+        FROM explorer_moves
+        WHERE position_key = ?
+        ORDER BY games DESC, wins DESC, san ASC
+    `).all(targetKey) as Array<{
         san: string;
         uci: string;
-        from: string;
-        to: string;
-        promotion?: string;
+        from_square: string;
+        to_square: string;
+        promotion?: string | null;
         fenAfter: string;
         games: number;
         wins: number;
         draws: number;
         losses: number;
-    }>();
+    }>;
 
-    let matchingGames = 0;
-    const seenGameIds = new Set<string>();
-
-    for (const game of games) {
-        try {
-            const chess = new Chess();
-            chess.loadPgn(game.pgn);
-            const history = chess.history({ verbose: true }) as any[];
-            const replay = new Chess();
-
-            for (const move of history) {
-                const positionKey = normalizeFen(replay.fen());
-                if (positionKey === targetKey) {
-                    if (!seenGameIds.has(game.id)) {
-                        seenGameIds.add(game.id);
-                        matchingGames++;
-                    }
-
-                    const played = replay.move({
-                        from: move.from,
-                        to: move.to,
-                        promotion: move.promotion,
-                    });
-                    if (!played) break;
-
-                    const uci = `${move.from}${move.to}${move.promotion || ''}`;
-                    const stats = moves.get(uci) || {
-                        san: move.san,
-                        uci,
-                        from: move.from,
-                        to: move.to,
-                        promotion: move.promotion,
-                        fenAfter: replay.fen(),
-                        games: 0,
-                        wins: 0,
-                        draws: 0,
-                        losses: 0,
-                    };
-
-                    stats.games++;
-                    if (game.result === '1/2-1/2') {
-                        stats.draws++;
-                    } else if (isUserWin(game as Game)) {
-                        stats.wins++;
-                    } else if (isUserLoss(game as Game)) {
-                        stats.losses++;
-                    }
-                    moves.set(uci, stats);
-                } else {
-                    const played = replay.move({
-                        from: move.from,
-                        to: move.to,
-                        promotion: move.promotion,
-                    });
-                    if (!played) break;
-                }
-            }
-        } catch {
-            continue;
-        }
-    }
-
-    const nextMoves = Array.from(moves.values()).map(move => ({
-        ...move,
+    const matchingGames = rows.reduce((total, row) => total + row.games, 0);
+    const nextMoves = rows.map(move => ({
+        san: move.san,
+        uci: move.uci,
+        from: move.from_square,
+        to: move.to_square,
+        promotion: move.promotion || undefined,
+        fenAfter: move.fenAfter,
+        games: move.games,
+        wins: move.wins,
+        draws: move.draws,
+        losses: move.losses,
         winRate: move.games ? Math.round((move.wins / move.games) * 100) : 0,
         drawRate: move.games ? Math.round((move.draws / move.games) * 100) : 0,
         lossRate: move.games ? Math.round((move.losses / move.games) * 100) : 0,
-    })).sort((a, b) => b.games - a.games || b.winRate - a.winRate);
+    }));
 
     return {
         fen: targetFen,
@@ -509,6 +558,18 @@ export async function getExplorerPosition(fen: string = 'start') {
         moveNumber: targetPosition.moveNumber(),
         games: matchingGames,
         nextMoves,
+    };
+}
+
+export async function evaluateExplorerPosition(fen: string, depth: number = 8) {
+    const targetFen = displayFen(fen);
+    const safeDepth = Math.max(1, Math.floor(Number(depth) || 8));
+    const evaluation = await evaluatePosition(targetFen, safeDepth);
+
+    return {
+        ...evaluation,
+        depth: safeDepth,
+        fen: targetFen,
     };
 }
 

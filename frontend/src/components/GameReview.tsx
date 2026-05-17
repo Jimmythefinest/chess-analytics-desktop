@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { api } from '../api';
@@ -65,13 +65,34 @@ interface GameData {
     };
 }
 
-function EvaluationBar({ evaluation }: { evaluation: number }) {
+interface EngineEval {
+    type: 'cp' | 'mate';
+    value: number;
+    bestMove: string;
+    pv: string[];
+    depth: number;
+    fen: string;
+}
+
+function evaluationToPercentage(evaluation?: EngineEval | null) {
+    if (!evaluation) return 50;
+    if (evaluation.type === 'mate') return evaluation.value > 0 ? 98 : 2;
+
+    const limit = 600;
+    const normalized = Math.max(-limit, Math.min(limit, evaluation.value));
+    return ((normalized + limit) / (limit * 2)) * 100;
+}
+
+function formatEvaluation(evaluation?: EngineEval | null) {
+    if (!evaluation) return '...';
+    if (evaluation.type === 'mate') return `M${Math.abs(evaluation.value)}`;
+    return `${evaluation.value >= 0 ? '+' : ''}${(evaluation.value / 100).toFixed(2)}`;
+}
+
+function EvaluationBar({ evaluation, error }: { evaluation?: EngineEval | null; error?: string }) {
     // Normalize evaluation to percentage (0 to 100)
     // -500 to +500 CP is the typical range shown
-    const limit = 500;
-    const normalized = Math.max(-limit, Math.min(limit, evaluation));
-    const percentage = ((normalized + limit) / (limit * 2)) * 100;
-
+    const percentage = evaluationToPercentage(evaluation);
 
     return (
         <div className="evaluation-bar-container">
@@ -85,7 +106,7 @@ function EvaluationBar({ evaluation }: { evaluation: number }) {
                 <div className="evaluation-center-line" />
             </div>
             <div className="evaluation-text">
-                {(evaluation / 100).toFixed(1)}
+                {evaluation ? `${formatEvaluation(evaluation)} d${evaluation.depth}` : error || '...'}
             </div>
         </div>
     );
@@ -139,9 +160,15 @@ function EvaluationGraph({ data, onSelectMove }: {
 
 export function GameReview() {
     const { id } = useParams();
+    const boardRef = useRef<HTMLElement | null>(null);
+    const lastDropAtRef = useRef(0);
     const [currentPly, setCurrentPly] = useState(0);
     const [chess] = useState(new Chess());
     const [position, setPosition] = useState('start');
+    const [customLine, setCustomLine] = useState<string[]>([]);
+    const [selectedSquare, setSelectedSquare] = useState('');
+    const [engineEval, setEngineEval] = useState<EngineEval | null>(null);
+    const [engineError, setEngineError] = useState('');
 
     const { data, isLoading, refetch } = useQuery<GameData>({
         queryKey: ['analysis', 'game', id],
@@ -165,8 +192,40 @@ export function GameReview() {
                 if (history[i]) chess.move(history[i]);
             }
             setPosition(chess.fen());
+            setCustomLine([]);
+            setSelectedSquare('');
         }
     }, [data, currentPly, chess]);
+
+    useEffect(() => {
+        let active = true;
+        let depth = 6;
+
+        setEngineEval(null);
+        setEngineError('');
+
+        const evaluate = async () => {
+            while (active) {
+                try {
+                    const result = await api.explorer.evaluatePosition(position, depth) as EngineEval;
+                    if (!active || result.fen !== position) return;
+                    setEngineEval(result);
+                    setEngineError('');
+                    depth += 2;
+                } catch (error: any) {
+                    if (!active) return;
+                    setEngineError(error?.message || 'Engine unavailable');
+                    return;
+                }
+            }
+        };
+
+        evaluate();
+
+        return () => {
+            active = false;
+        };
+    }, [position]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -186,6 +245,122 @@ export function GameReview() {
         const maxPly = data.analysis?.length || 0;
         setCurrentPly(Math.max(0, Math.min(ply, maxPly)));
     };
+
+    const pushCustomMove = (nextFen: string, san: string) => {
+        setPosition(nextFen);
+        setCustomLine(items => [...items, san]);
+        setSelectedSquare('');
+    };
+
+    const getSquareFromEvent = (event: Event) => {
+        const path = event.composedPath();
+        for (const item of path) {
+            if (item instanceof HTMLElement) {
+                const square = item.getAttribute('data-square');
+                if (square) return square;
+            }
+        }
+        return '';
+    };
+
+    const isOwnPiece = (square: string) => {
+        try {
+            const current = new Chess(position === 'start' ? undefined : position);
+            const piece = current.get(square as any);
+            return !!piece && piece.color === current.turn();
+        } catch {
+            return false;
+        }
+    };
+
+    const tryCustomMove = (from: string, to: string) => {
+        try {
+            const current = new Chess(position === 'start' ? undefined : position);
+            const move = current.move({ from, to, promotion: 'q' });
+            if (!move) return false;
+            pushCustomMove(current.fen(), move.san);
+            return true;
+        } catch {
+            return false;
+        }
+    };
+
+    const returnToGameLine = () => {
+        setCustomLine([]);
+        setSelectedSquare('');
+        if (!data?.game.pgn) return;
+        const reviewChess = new Chess();
+        reviewChess.loadPgn(data.game.pgn);
+        const history = reviewChess.history();
+        reviewChess.reset();
+        for (let i = 0; i < currentPly; i++) {
+            if (history[i]) reviewChess.move(history[i]);
+        }
+        setPosition(reviewChess.fen());
+    };
+
+    useEffect(() => {
+        const board = boardRef.current;
+        if (!board) return;
+
+        const handleDrop = (event: Event) => {
+            lastDropAtRef.current = Date.now();
+            const dropEvent = event as CustomEvent<{
+                source: string;
+                target: string;
+                setAction: (action: 'snapback' | 'trash' | 'drop') => void;
+            }>;
+            const { source, target, setAction } = dropEvent.detail;
+
+            if (!source || !target || target === 'offboard') {
+                setAction('snapback');
+                return;
+            }
+
+            try {
+                const current = new Chess(position === 'start' ? undefined : position);
+                const move = current.move({ from: source, to: target, promotion: 'q' });
+                if (!move) {
+                    setAction('snapback');
+                    return;
+                }
+                pushCustomMove(current.fen(), move.san);
+            } catch {
+                setAction('snapback');
+            }
+        };
+
+        board.addEventListener('drop', handleDrop);
+        return () => board.removeEventListener('drop', handleDrop);
+    }, [position]);
+
+    useEffect(() => {
+        const board = boardRef.current;
+        if (!board) return;
+
+        const handleTap = (event: Event) => {
+            if (Date.now() - lastDropAtRef.current < 150) return;
+
+            const square = getSquareFromEvent(event);
+            if (!square) return;
+
+            if (!selectedSquare) {
+                setSelectedSquare(isOwnPiece(square) ? square : '');
+                return;
+            }
+
+            if (selectedSquare === square) {
+                setSelectedSquare('');
+                return;
+            }
+
+            if (tryCustomMove(selectedSquare, square)) return;
+            setSelectedSquare(isOwnPiece(square) ? square : '');
+        };
+
+        board.addEventListener('click', handleTap);
+        return () => board.removeEventListener('click', handleTap);
+    }, [position, selectedSquare]);
 
     const getClassBadge = (classification: string) => {
         const classes: Record<string, string> = {
@@ -239,14 +414,21 @@ export function GameReview() {
                 {/* Board Section */}
                 <div className="board-container">
                     <EvaluationBar
-                        evaluation={currentMove ? currentMove.eval_after : 0}
+                        evaluation={engineEval}
+                        error={engineError}
                     />
                     <div className="board-section">
                         <div className="chessboard-wrapper">
+                            {selectedSquare && (
+                                <style>{`chess-board::part(${selectedSquare}) { box-shadow: inset 0 0 0 4px rgba(88, 166, 255, 0.85); }`}</style>
+                            )}
                             <chess-board
+                                ref={boardRef}
+                                key={position}
                                 position={position}
                                 orientation={data.game.user_color === 'black' ? 'black' : 'white'}
-                                draggable="false"
+                                draggable-pieces="true"
+                                drop-off-board="snapback"
                             ></chess-board>
                         </div>
 
@@ -257,6 +439,18 @@ export function GameReview() {
                             <button className="btn btn-secondary" onClick={() => goToMove(currentPly + 1)}>▶</button>
                             <button className="btn btn-secondary" onClick={() => goToMove(data.analysis?.length || 0)}>⏭</button>
                         </div>
+
+                        {customLine.length > 0 && (
+                            <div className="custom-line-panel">
+                                <div className="custom-line-moves">
+                                    <span className="custom-line-label">Custom</span>
+                                    {customLine.map((move, index) => (
+                                        <span key={`${move}-${index}`} className="custom-line-chip">{move}</span>
+                                    ))}
+                                </div>
+                                <button className="btn btn-secondary btn-sm" onClick={returnToGameLine}>Return to game</button>
+                            </div>
+                        )}
                     </div>
                 </div>
 

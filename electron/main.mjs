@@ -42,6 +42,7 @@ async function setupIPC() {
 
         // Explorer
         ipcMain.handle('explorer:position', (e, fen) => backend.getExplorerPosition(fen));
+        ipcMain.handle('explorer:evaluatePosition', (e, fen, depth) => backend.evaluateExplorerPosition(fen, depth));
 
         // Window controls
         ipcMain.handle('window:minimize', () => getMainWindow()?.minimize());
