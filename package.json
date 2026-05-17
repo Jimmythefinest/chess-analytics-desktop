@@ -4,7 +4,8 @@
   "type": "module",
   "main": "electron/main.mjs",
   "scripts": {
-    "electron:dev": "concurrently \"npm run dev --prefix frontend\" \"wait-on http://localhost:5173 && electron .\"",
+    "electron:dev": "npm run backend:rebuild-native && npm run build --prefix backend && concurrently -k --success first \"npm run dev --prefix frontend -- --host 127.0.0.1 --strictPort\" \"wait-on http://127.0.0.1:5173 && electron .\"",
+    "backend:rebuild-native": "electron-rebuild -f -w better-sqlite3 -m backend -t dev,prod,optional",
     "electron:build": "npm run build --prefix frontend && npm run build --prefix backend && electron-builder",
     "frontend:build": "npm run build --prefix frontend",
     "backend:build": "npm run build --prefix backend",

@@ -1,3 +1,52 @@
+.titlebar {
+    height: 36px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    background: #0b0f14;
+    border-bottom: 1px solid var(--bg-tertiary);
+    -webkit-app-region: drag;
+    user-select: none;
+}
+
+.titlebar-title {
+    justify-self: center;
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0;
+}
+
+.window-controls {
+    height: 100%;
+    display: flex;
+    -webkit-app-region: no-drag;
+}
+
+.window-control {
+    width: 48px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.window-control:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.window-control.close:hover {
+    background: var(--accent-danger);
+    color: white;
+}
+
 .navbar {
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--bg-tertiary);

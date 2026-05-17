@@ -1,0 +1,232 @@
+{
+  "/home/jimmy/Documents/node/chess-analytics-desktop/package.json": {
+    "mtime": 1778963232.4925241,
+    "ast_hash": "a91a42fb34a593e00c2b87d7a2bd1332",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/frontend/tsconfig.json": {
+    "mtime": 1778960986.3964648,
+    "ast_hash": "352186bb8d9f51dfae40781ed0805bfc",
+    "semantic_hash": "352186bb8d9f51dfae40781ed0805bfc"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/frontend/tsconfig.node.json": {
+    "mtime": 1778960986.3964648,
+    "ast_hash": "8953ab907b5500c440188b3e4e8f421d",
+    "semantic_hash": "8953ab907b5500c440188b3e4e8f421d"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/frontend/vite.config.ts": {
+    "mtime": 1778960986.3964648,
+    "ast_hash": "620f578d9edaeac766f5947dd445aba1",
+    "semantic_hash": "620f578d9edaeac766f5947dd445aba1"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/frontend/package.json": {
+    "mtime": 1778960986.3924646,
+    "ast_hash": "9876c00719f0432b45dd29a7db8c342c",
+    "semantic_hash": "9876c00719f0432b45dd29a7db8c342c"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/frontend/src/api.ts": {
+    "mtime": 1778998293.9856052,
+    "ast_hash": "18a2b88795d04ccbd83c995a16120463",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/frontend/src/App.tsx": {
+    "mtime": 1778998410.7000375,
+    "ast_hash": "aed550f0311ff78a87388e7e369c8d71",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/frontend/src/main.tsx": {
+    "mtime": 1778960986.3964648,
+    "ast_hash": "fb53ec9116778f9d7cd91e14aec546b6",
+    "semantic_hash": "fb53ec9116778f9d7cd91e14aec546b6"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/frontend/src/components/Import.tsx": {
+    "mtime": 1778996930.0978322,
+    "ast_hash": "b8defcf75eeb9c020df626cc0a90e588",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/frontend/src/components/Navbar.tsx": {
+    "mtime": 1778998523.6423523,
+    "ast_hash": "c0e179dde31383a87631f72fb5865ce6",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/frontend/src/components/Explorer.tsx": {
+    "mtime": 1778998350.2267828,
+    "ast_hash": "268575d43d393e7efbf799eb5dcfd75f",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/frontend/src/components/GameList.tsx": {
+    "mtime": 1778964726.183699,
+    "ast_hash": "f9afc7ea26028f48b39ea84e7898ea85",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/frontend/src/components/Dashboard.tsx": {
+    "mtime": 1778960986.3924646,
+    "ast_hash": "03ea1785b11570bbb79606268113ddde",
+    "semantic_hash": "03ea1785b11570bbb79606268113ddde"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/frontend/src/components/Insights.tsx": {
+    "mtime": 1778997896.072847,
+    "ast_hash": "9d2d0aafbca538c64cd0a3980bf424d5",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/frontend/src/components/Openings.tsx": {
+    "mtime": 1778960986.3964648,
+    "ast_hash": "bd763a00f31ceda777594c836238f301",
+    "semantic_hash": "bd763a00f31ceda777594c836238f301"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/frontend/src/components/GameReview.tsx": {
+    "mtime": 1778963974.1249118,
+    "ast_hash": "be947d0062e6154fbc9002893b98008d",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/dist_electron/linux-unpacked/vk_swiftshader_icd.json": {
+    "mtime": 1778964964.8079445,
+    "ast_hash": "c85ec806c575220afc0c3378c6653dd8",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/electron/main.mjs": {
+    "mtime": 1778998202.6276667,
+    "ast_hash": "c4cdf2f356bc3475c4fbf3f74689b39b",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/electron/preload.js": {
+    "mtime": 1778998234.320343,
+    "ast_hash": "11ff578976b983c9aeaf6dce8527b046",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/backend/tsconfig.json": {
+    "mtime": 1778960986.3924646,
+    "ast_hash": "68371a84ff9d661d4db18deeb63bd128",
+    "semantic_hash": "68371a84ff9d661d4db18deeb63bd128"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/backend/package.json": {
+    "mtime": 1778962876.785723,
+    "ast_hash": "4d34ca2064c70409cfa56f69385551cc",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/backend/src/index.ts": {
+    "mtime": 1778960986.3884645,
+    "ast_hash": "3d6c5e4e6fc221f85a20b7b72aeea411",
+    "semantic_hash": "3d6c5e4e6fc221f85a20b7b72aeea411"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/backend/src/types.ts": {
+    "mtime": 1778960986.3924646,
+    "ast_hash": "fa8e111dacb6656a34334f42dc8b625d",
+    "semantic_hash": "fa8e111dacb6656a34334f42dc8b625d"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/backend/src/ipcHandlers.ts": {
+    "mtime": 1778998178.463148,
+    "ast_hash": "ab7a83dcee0b5e6df8a903a3afd1cbd4",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/backend/src/db/init.ts": {
+    "mtime": 1778960986.3884645,
+    "ast_hash": "26b3d126f649c422c8522d2aa0e29812",
+    "semantic_hash": "26b3d126f649c422c8522d2aa0e29812"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/backend/src/routes/analysis.ts": {
+    "mtime": 1778960986.3924646,
+    "ast_hash": "69dab31a5e4e43950660a026048e2882",
+    "semantic_hash": "69dab31a5e4e43950660a026048e2882"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/backend/src/routes/games.ts": {
+    "mtime": 1778964261.7093563,
+    "ast_hash": "a0b2f2f8f30538bfc16f7731337067a8",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/backend/src/routes/insights.ts": {
+    "mtime": 1778960986.3924646,
+    "ast_hash": "b0065c566d253f144ad2c6b5d3653202",
+    "semantic_hash": "b0065c566d253f144ad2c6b5d3653202"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/backend/src/services/analyzer.ts": {
+    "mtime": 1778963717.7270603,
+    "ast_hash": "954dd729a8f6ec9f81381bc8e4959f15",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/backend/src/services/chesscom.ts": {
+    "mtime": 1778960986.3924646,
+    "ast_hash": "c569f188a83f248953d8e3789ea2e63d",
+    "semantic_hash": "c569f188a83f248953d8e3789ea2e63d"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/backend/src/services/lichess.ts": {
+    "mtime": 1778960986.3924646,
+    "ast_hash": "85dec559e8aff1d7bf7ab7fadb84eeea",
+    "semantic_hash": "85dec559e8aff1d7bf7ab7fadb84eeea"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/backend/src/services/stockfish.ts": {
+    "mtime": 1778960986.3924646,
+    "ast_hash": "b633e80ecac84961bb30b08ed14bc931",
+    "semantic_hash": "b633e80ecac84961bb30b08ed14bc931"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/BUILD_DEBUG_GUIDE.md": {
+    "mtime": 1778960986.3884645,
+    "ast_hash": "8fbdbeab214fd11a5da9e8ea0f5076fd",
+    "semantic_hash": "8fbdbeab214fd11a5da9e8ea0f5076fd"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/PORT_SOLUTIONS.md": {
+    "mtime": 1778960986.3884645,
+    "ast_hash": "50bfb812834040fb84d2faac29a6a522",
+    "semantic_hash": "50bfb812834040fb84d2faac29a6a522"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/STOCKFISH_MANAGEMENT.md": {
+    "mtime": 1778960986.3884645,
+    "ast_hash": "e42f650b78d7fb685ab8729690fee18c",
+    "semantic_hash": "e42f650b78d7fb685ab8729690fee18c"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/README.md": {
+    "mtime": 1778960986.3884645,
+    "ast_hash": "0bf901fe601d636da29d88101ca744fc",
+    "semantic_hash": "0bf901fe601d636da29d88101ca744fc"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/BUILD_ISSUE_ANALYSIS.md": {
+    "mtime": 1778960986.3884645,
+    "ast_hash": "c6fbf5e522db031c9df824eecfe57914",
+    "semantic_hash": "c6fbf5e522db031c9df824eecfe57914"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/electron-builder.yml": {
+    "mtime": 1778960986.3924646,
+    "ast_hash": "7a22ffbc052cfb0234f92f43360a87e4",
+    "semantic_hash": "7a22ffbc052cfb0234f92f43360a87e4"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/frontend/index.html": {
+    "mtime": 1778960986.3924646,
+    "ast_hash": "004c7e4378c93a7f4524b595f8942f32",
+    "semantic_hash": "004c7e4378c93a7f4524b595f8942f32"
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/dist_electron/builder-effective-config.yaml": {
+    "mtime": 1778964964.2559342,
+    "ast_hash": "8a3b06e0f1584707837baa661afbee17",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/dist_electron/latest-linux.yml": {
+    "mtime": 1778964973.072099,
+    "ast_hash": "80ec7d49f7d83e13af5ffe06d149c4d3",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/dist_electron/builder-debug.yml": {
+    "mtime": 1778964973.072099,
+    "ast_hash": "6cc6769b2b834dc29b69d6fcb16c63bd",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/dist_electron/linux-unpacked/LICENSES.chromium.html": {
+    "mtime": 1778964964.723943,
+    "ast_hash": "69ca1238ec9a6114e915f1beef54ea48",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/dist_electron/linux-unpacked/LICENSE.electron.txt": {
+    "mtime": 1778964964.723943,
+    "ast_hash": "4d42118d35941e0f664dddbd83f633c5",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/dist_electron/linux-unpacked/resources/app-update.yml": {
+    "mtime": 1778964969.6080341,
+    "ast_hash": "149257ad25d7063469ae6049bbcc6df6",
+    "semantic_hash": ""
+  },
+  "/home/jimmy/Documents/node/chess-analytics-desktop/frontend/public/chess.svg": {
+    "mtime": 1778960986.3924646,
+    "ast_hash": "af119dd09fb423dfee11d5f3ade0a7cd",
+    "semantic_hash": "af119dd09fb423dfee11d5f3ade0a7cd"
+  }
+}

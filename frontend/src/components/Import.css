@@ -22,25 +22,13 @@
     border-bottom: 1px solid var(--bg-tertiary);
 }
 
-.logo-icon {
-    font-size: 2.5rem;
-}
-
 .logo-text {
     font-size: 1.5rem;
     font-weight: 700;
 }
 
-.import-logo.chesscom .logo-icon {
-    color: #81b64c;
-}
-
 .import-logo.chesscom .logo-text {
     color: #81b64c;
-}
-
-.import-logo.lichess .logo-icon {
-    color: var(--text-primary);
 }
 
 .import-form {

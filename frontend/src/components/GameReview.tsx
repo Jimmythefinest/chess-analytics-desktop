@@ -36,6 +36,7 @@ interface PlayerStats {
     mistakes: number;
     inaccuracies: number;
     excellent: number;
+    good: number;
     great: number;
     best: number;
     brilliant: number;
@@ -275,6 +276,31 @@ export function GameReview() {
                         </div>
                     ) : (
                         <>
+                            {/* Current Move Info */}
+                            {currentMove && (
+                                <div className="current-move card animate-slide-up">
+                                    <div className="move-header">
+                                        <h4>{Math.ceil(currentMove.ply / 2)}. {currentMove.move_played}</h4>
+                                        <div className={`badge ${getClassBadge(currentMove.classification)}`}>
+                                            {currentMove.classification}
+                                        </div>
+                                    </div>
+
+                                    {currentMove.classification !== 'best' && currentMove.classification !== 'brilliant' && (
+                                        <div className="best-move-suggestion">
+                                            Best was <strong>{currentMove.best_move}</strong>
+                                        </div>
+                                    )}
+
+                                    <div className="eval-footer">
+                                        <div className="eval-score">{(currentMove.eval_after / 100).toFixed(1)}</div>
+                                        {currentMove.cp_loss > 0 && (
+                                            <div className="cp-loss">-{currentMove.cp_loss}</div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Summary */}
                             {data.summary && (
                                 <div className="analysis-summary card">
@@ -319,6 +345,36 @@ export function GameReview() {
                                             <span className="count">{data.summary.opponent.great}</span>
                                         </div>
                                         <div className="classification-row">
+                                            <span className="badge-best">✓</span>
+                                            <span className="count">{data.summary.user.best}</span>
+                                            <span className="label">Best</span>
+                                            <span className="count">{data.summary.opponent.best}</span>
+                                        </div>
+                                        <div className="classification-row">
+                                            <span className="badge-excellent">+</span>
+                                            <span className="count">{data.summary.user.excellent}</span>
+                                            <span className="label">Excellent</span>
+                                            <span className="count">{data.summary.opponent.excellent}</span>
+                                        </div>
+                                        <div className="classification-row">
+                                            <span className="badge-good">✓</span>
+                                            <span className="count">{data.summary.user.good}</span>
+                                            <span className="label">Good</span>
+                                            <span className="count">{data.summary.opponent.good}</span>
+                                        </div>
+                                        <div className="classification-row">
+                                            <span className="badge-inaccuracy">?!</span>
+                                            <span className="count">{data.summary.user.inaccuracies}</span>
+                                            <span className="label">Inaccuracies</span>
+                                            <span className="count">{data.summary.opponent.inaccuracies}</span>
+                                        </div>
+                                        <div className="classification-row">
+                                            <span className="badge-mistake">?</span>
+                                            <span className="count">{data.summary.user.mistakes}</span>
+                                            <span className="label">Mistakes</span>
+                                            <span className="count">{data.summary.opponent.mistakes}</span>
+                                        </div>
+                                        <div className="classification-row">
                                             <span className="badge-blunder">??</span>
                                             <span className="count">{data.summary.user.blunders}</span>
                                             <span className="label">Blunders</span>
@@ -332,31 +388,6 @@ export function GameReview() {
                                 data={data.analysis}
                                 onSelectMove={goToMove}
                             />
-
-                            {/* Current Move Info */}
-                            {currentMove && (
-                                <div className="current-move card animate-slide-up">
-                                    <div className="move-header">
-                                        <h4>{Math.ceil(currentMove.ply / 2)}. {currentMove.move_played}</h4>
-                                        <div className={`badge ${getClassBadge(currentMove.classification)}`}>
-                                            {currentMove.classification}
-                                        </div>
-                                    </div>
-
-                                    {currentMove.classification !== 'best' && currentMove.classification !== 'brilliant' && (
-                                        <div className="best-move-suggestion">
-                                            Best was <strong>{currentMove.best_move}</strong>
-                                        </div>
-                                    )}
-
-                                    <div className="eval-footer">
-                                        <div className="eval-score">{(currentMove.eval_after / 100).toFixed(1)}</div>
-                                        {currentMove.cp_loss > 0 && (
-                                            <div className="cp-loss">-{currentMove.cp_loss}</div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
 
                             {/* Move List */}
                             <div className="move-list card">

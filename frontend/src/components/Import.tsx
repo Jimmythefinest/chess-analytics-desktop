@@ -34,7 +34,6 @@ export function Import() {
                 {/* Chess.com */}
                 <div className="import-card card">
                     <div className="import-logo chesscom">
-                        <span className="logo-icon">♟</span>
                         <span className="logo-text">Chess.com</span>
                     </div>
 
@@ -72,13 +71,13 @@ export function Import() {
 
                         {chesscomMutation.isSuccess && (
                             <div className="import-success">
-                                ✓ {chesscomMutation.data?.message}
+                                {chesscomMutation.data?.message}
                             </div>
                         )}
 
                         {chesscomMutation.isError && (
                             <div className="import-error">
-                                ✗ {chesscomMutation.error?.message || 'Import failed'}
+                                {chesscomMutation.error?.message || 'Import failed'}
                             </div>
                         )}
                     </div>
@@ -87,7 +86,6 @@ export function Import() {
                 {/* Lichess */}
                 <div className="import-card card">
                     <div className="import-logo lichess">
-                        <span className="logo-icon">♞</span>
                         <span className="logo-text">Lichess</span>
                     </div>
 
@@ -125,13 +123,13 @@ export function Import() {
 
                         {lichessMutation.isSuccess && (
                             <div className="import-success">
-                                ✓ {lichessMutation.data?.message}
+                                {lichessMutation.data?.message}
                             </div>
                         )}
 
                         {lichessMutation.isError && (
                             <div className="import-error">
-                                ✗ {lichessMutation.error?.message || 'Import failed'}
+                                {lichessMutation.error?.message || 'Import failed'}
                             </div>
                         )}
                     </div>

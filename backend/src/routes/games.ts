@@ -156,7 +156,7 @@ gamesRouter.get('/', async (req, res) => {
             whereClause += ' AND opening_eco LIKE ?';
             params.push(`${opening}%`);
         }
-        if (analyzed !== undefined) {
+        if (analyzed !== undefined && analyzed !== '') {
             whereClause += ' AND analyzed = ?';
             params.push(analyzed === 'true' ? 1 : 0);
         }
@@ -178,7 +178,7 @@ gamesRouter.get('/', async (req, res) => {
              time_control, opening_eco, opening_name, played_at, analyzed
       FROM games 
       ${whereClause}
-      ORDER BY ${sortField} ${sortOrder}
+      ORDER BY ${sortField} ${sortOrder}, id ASC
       LIMIT ? OFFSET ?
     `).all(...params, Number(limit), offset);
 

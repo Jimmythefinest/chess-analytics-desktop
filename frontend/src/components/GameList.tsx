@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
@@ -28,15 +28,35 @@ interface GamesResponse {
     };
 }
 
+interface AnalyzeAllResult {
+    success: boolean;
+    total: number;
+    analyzed: number;
+    failed?: Array<{ id: string; error: string }>;
+}
+
+interface AnalyzeAllProgress {
+    running: boolean;
+    total: number;
+    completed: number;
+    analyzed: number;
+    failed: number;
+    currentGameId: string;
+}
+
 export function GameList() {
     const [page, setPage] = useState(1);
     const [source, setSource] = useState<string>('');
     const [analyzed, setAnalyzed] = useState<string>('');
+    const [sort, setSort] = useState('played_at:desc');
+    const [analysisMessage, setAnalysisMessage] = useState('');
+    const [analyzeAllProgress, setAnalyzeAllProgress] = useState<AnalyzeAllProgress | null>(null);
     const queryClient = useQueryClient();
+    const [sortBy, order] = sort.split(':');
 
     const { data, isLoading } = useQuery<GamesResponse>({
-        queryKey: ['games', page, source, analyzed],
-        queryFn: () => api.games.list({ page, limit: 20, source, analyzed }),
+        queryKey: ['games', page, source, analyzed, sortBy, order],
+        queryFn: () => api.games.list({ page, limit: 20, source, analyzed, sortBy, order }),
     });
 
     const analyzeMutation = useMutation({
@@ -45,6 +65,45 @@ export function GameList() {
             queryClient.invalidateQueries({ queryKey: ['games'] });
         },
     });
+
+    const analyzeAllMutation = useMutation<AnalyzeAllResult>({
+        mutationFn: () => api.analysis.triggerAll(),
+        onSuccess: (result) => {
+            queryClient.invalidateQueries({ queryKey: ['games'] });
+            if (result.failed?.length) {
+                setAnalysisMessage(`Analyzed ${result.analyzed} of ${result.total} games. ${result.failed.length} failed.`);
+            } else {
+                setAnalysisMessage(`Analyzed ${result.analyzed} games.`);
+            }
+        },
+        onError: (error: any) => {
+            setAnalysisMessage(error?.message || 'Analyze all failed.');
+        },
+    });
+
+    useEffect(() => {
+        if (!analyzeAllMutation.isPending) return;
+
+        let cancelled = false;
+        const loadProgress = async () => {
+            const progress = await api.analysis.getAnalyzeAllProgress();
+            if (!cancelled) {
+                setAnalyzeAllProgress(progress);
+            }
+        };
+
+        loadProgress();
+        const interval = window.setInterval(loadProgress, 1000);
+
+        return () => {
+            cancelled = true;
+            window.clearInterval(interval);
+        };
+    }, [analyzeAllMutation.isPending]);
+
+    const progressPercent = analyzeAllProgress?.total
+        ? Math.round((analyzeAllProgress.completed / analyzeAllProgress.total) * 100)
+        : 0;
 
     const formatDate = (dateStr: string) => {
         return new Date(dateStr).toLocaleDateString('en-US', {
@@ -101,7 +160,58 @@ export function GameList() {
                     <option value="true">Analyzed</option>
                     <option value="false">Not Analyzed</option>
                 </select>
+
+                <select
+                    className="input filter-select"
+                    value={sort}
+                    onChange={(e) => { setSort(e.target.value); setPage(1); }}
+                >
+                    <option value="played_at:desc">Newest first</option>
+                    <option value="played_at:asc">Oldest first</option>
+                    <option value="opening_eco:asc">Opening A-Z</option>
+                    <option value="opening_eco:desc">Opening Z-A</option>
+                    <option value="result:asc">Result A-Z</option>
+                    <option value="result:desc">Result Z-A</option>
+                </select>
+
+                <button
+                    className="btn btn-primary"
+                    onClick={() => {
+                        setAnalysisMessage('');
+                        analyzeAllMutation.mutate();
+                    }}
+                    disabled={analyzeAllMutation.isPending || analyzeMutation.isPending}
+                >
+                    {analyzeAllMutation.isPending ? 'Analyzing...' : 'Analyze All'}
+                </button>
             </div>
+
+            {analysisMessage && (
+                <div className="analysis-message card">
+                    {analysisMessage}
+                </div>
+            )}
+
+            {analyzeAllMutation.isPending && analyzeAllProgress && (
+                <div className="analyze-progress card">
+                    <div className="analyze-progress-header">
+                        <span>Analyzing games</span>
+                        <span>{analyzeAllProgress.completed} / {analyzeAllProgress.total}</span>
+                    </div>
+                    <div className="analyze-progress-track">
+                        <div
+                            className="analyze-progress-fill"
+                            style={{ width: `${progressPercent}%` }}
+                        />
+                    </div>
+                    <div className="analyze-progress-meta">
+                        <span>{progressPercent}% complete</span>
+                        {analyzeAllProgress.failed > 0 && (
+                            <span>{analyzeAllProgress.failed} failed</span>
+                        )}
+                    </div>
+                </div>
+            )}
 
             {/* Games Table */}
             {data && data.games.length > 0 ? (

@@ -5,9 +5,14 @@ import url from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isDev = !app.isPackaged;
+const devServerUrl = process.env.VITE_DEV_SERVER_URL || 'http://127.0.0.1:5173';
 
 let mainWindow;
 let backend;
+
+function getMainWindow() {
+    return BrowserWindow.getFocusedWindow() || mainWindow;
+}
 
 async function setupIPC() {
     console.log("Setting up IPC handlers...");
@@ -24,6 +29,8 @@ async function setupIPC() {
 
         // Analysis
         ipcMain.handle('analysis:trigger', (e, id, depth) => backend.triggerAnalysis(id, depth));
+        ipcMain.handle('analysis:triggerAll', (e, depth) => backend.triggerAnalysisForAll(depth));
+        ipcMain.handle('analysis:getAnalyzeAllProgress', () => backend.getAnalyzeAllProgress());
         ipcMain.handle('analysis:get', (e, id) => backend.getGame(id)); // Same as games:get for now
 
         // Insights
@@ -31,6 +38,23 @@ async function setupIPC() {
         ipcMain.handle('insights:openings', (e, minGames) => backend.getOpeningsStats(minGames));
         ipcMain.handle('insights:blunders', () => backend.getBlundersInsights());
         ipcMain.handle('insights:progress', () => backend.getProgressInsights());
+        ipcMain.handle('insights:advanced', () => backend.getAdvancedInsights());
+
+        // Explorer
+        ipcMain.handle('explorer:position', (e, fen) => backend.getExplorerPosition(fen));
+
+        // Window controls
+        ipcMain.handle('window:minimize', () => getMainWindow()?.minimize());
+        ipcMain.handle('window:toggleMaximize', () => {
+            const window = getMainWindow();
+            if (!window) return;
+            if (window.isMaximized()) {
+                window.unmaximize();
+            } else {
+                window.maximize();
+            }
+        });
+        ipcMain.handle('window:close', () => getMainWindow()?.close());
 
         console.log("✅ IPC handlers registered.");
     } catch (error) {
@@ -42,6 +66,10 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1200,
         height: 800,
+        minWidth: 960,
+        minHeight: 640,
+        frame: false,
+        autoHideMenuBar: true,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
@@ -51,15 +79,12 @@ function createWindow() {
         backgroundColor: '#0d1117',
     });
 
+    mainWindow.maximize();
+
     if (isDev) {
-        mainWindow.loadURL('http://localhost:5173');
+        mainWindow.loadURL(devServerUrl);
     } else {
         mainWindow.loadFile(path.join(__dirname, '../frontend/dist/index.html'));
-    }
-
-    // Open DevTools in dev mode
-    if (isDev) {
-        mainWindow.webContents.openDevTools();
     }
 
     mainWindow.on('closed', () => {

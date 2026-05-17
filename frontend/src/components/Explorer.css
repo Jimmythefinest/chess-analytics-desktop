@@ -1,0 +1,236 @@
+.explorer-page .page-header {
+    margin-bottom: var(--space-xl);
+}
+
+.explorer-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-lg);
+}
+
+.explorer-actions {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.explorer-layout {
+    display: grid;
+    grid-template-columns: minmax(360px, 520px) minmax(0, 1fr);
+    gap: var(--space-xl);
+    align-items: start;
+}
+
+.explorer-board-panel {
+    min-width: 0;
+}
+
+.explorer-board-wrap {
+    width: 100%;
+    max-width: 520px;
+    aspect-ratio: 1;
+}
+
+.explorer-board-wrap chess-board {
+    width: 100%;
+    height: 100%;
+}
+
+.explorer-position-strip {
+    margin-top: var(--space-md);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-sm);
+}
+
+.explorer-position-strip > div {
+    min-width: 0;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--bg-secondary);
+    border: 1px solid var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+}
+
+.strip-label {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    line-height: 1.2;
+}
+
+.explorer-position-strip strong {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.95rem;
+}
+
+.explorer-line {
+    margin-top: var(--space-md);
+    padding-bottom: var(--space-xs);
+    overflow-x: auto;
+}
+
+.line-scroll {
+    display: flex;
+    gap: var(--space-sm);
+    min-width: max-content;
+}
+
+.line-chip {
+    height: 32px;
+    padding: 0 var(--space-sm);
+    border: 1px solid var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.line-chip.active,
+.line-chip:hover {
+    color: var(--accent-primary);
+    border-color: rgba(88, 166, 255, 0.4);
+    background: rgba(88, 166, 255, 0.1);
+}
+
+.explorer-moves-panel {
+    min-width: 0;
+    padding: var(--space-lg);
+    background: var(--bg-card);
+    border: 1px solid var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+}
+
+.explorer-card-header {
+    margin-bottom: var(--space-md);
+}
+
+.move-list-explorer {
+    display: grid;
+    gap: var(--space-sm);
+}
+
+.explorer-move-row {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(120px, 160px) minmax(160px, 1fr) minmax(160px, 220px);
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    border: 1px solid var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    text-align: left;
+    cursor: pointer;
+    transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.explorer-move-row:hover {
+    background: var(--bg-hover);
+    border-color: rgba(88, 166, 255, 0.35);
+}
+
+.move-main {
+    min-width: 0;
+}
+
+.move-main strong,
+.move-main span {
+    display: block;
+}
+
+.move-main strong {
+    font-size: 1.1rem;
+    line-height: 1.2;
+}
+
+.move-main span {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+}
+
+.result-bar {
+    display: flex;
+    height: 10px;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    background: var(--bg-tertiary);
+}
+
+.result-win {
+    background: var(--accent-success);
+}
+
+.result-draw {
+    background: var(--accent-warning);
+}
+
+.result-loss {
+    background: var(--accent-danger);
+}
+
+.result-labels {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-xs);
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    white-space: nowrap;
+}
+
+.result-labels span {
+    text-align: right;
+}
+
+.result-labels .win {
+    color: var(--accent-success);
+}
+
+.result-labels .loss {
+    color: var(--accent-danger);
+}
+
+.explorer-empty {
+    min-height: 180px;
+    display: grid;
+    place-items: center;
+    color: var(--text-secondary);
+}
+
+.loading-container.compact {
+    min-height: 180px;
+}
+
+@media (max-width: 980px) {
+    .explorer-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .explorer-board-wrap {
+        max-width: 100%;
+    }
+
+    .explorer-move-row {
+        grid-template-columns: 1fr;
+        gap: var(--space-sm);
+    }
+
+    .result-labels span {
+        text-align: left;
+    }
+}
+
+@media (max-width: 640px) {
+    .explorer-header {
+        flex-direction: column;
+    }
+
+    .explorer-actions {
+        width: 100%;
+    }
+
+    .explorer-actions .btn {
+        flex: 1;
+    }
+}

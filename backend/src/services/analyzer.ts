@@ -12,6 +12,7 @@ export interface PlayerStats {
     mistakes: number;
     inaccuracies: number;
     excellent: number;
+    good: number;
     great: number;
     best: number;
     brilliant: number;
@@ -137,6 +138,7 @@ export function generateSummary(moves: MoveAnalysis[]): AnalysisResult['summary'
             mistakes: 0,
             inaccuracies: 0,
             excellent: 0,
+            good: 0,
             great: 0,
             best: 0,
             brilliant: 0,
@@ -145,7 +147,17 @@ export function generateSummary(moves: MoveAnalysis[]): AnalysisResult['summary'
 
         let totalAcc = 0;
         for (const m of playerMoves) {
-            const cat = m.classification as keyof Omit<PlayerStats, 'accuracy' | 'totalMoves'>;
+            const statKeys: Record<MoveAnalysis['classification'], keyof Omit<PlayerStats, 'accuracy' | 'totalMoves'>> = {
+                blunder: 'blunders',
+                mistake: 'mistakes',
+                inaccuracy: 'inaccuracies',
+                good: 'good',
+                excellent: 'excellent',
+                great: 'great',
+                best: 'best',
+                brilliant: 'brilliant',
+            };
+            const cat = statKeys[m.classification];
             if (stats[cat] !== undefined) {
                 stats[cat]++;
             }
